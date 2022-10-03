@@ -1,7 +1,7 @@
 package com.github.pawelkowalski92.crawler;
 
-import com.github.pawelkowalski92.crawler.configuration.SpyWebClientBeanPostProcessor;
 import com.github.pawelkowalski92.crawler.configuration.TestClockConfiguration;
+import com.github.pawelkowalski92.crawler.configuration.TestVerificationConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.BeanFactory;
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 @DirtiesContext
 @Import({
         TestClockConfiguration.class,
-        SpyWebClientBeanPostProcessor.class
+        TestVerificationConfiguration.SpyWebClientApplicatorConfiguration.class
 })
 public class BaseIntegrationTest {
 

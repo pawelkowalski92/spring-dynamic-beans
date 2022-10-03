@@ -1,6 +1,7 @@
 package com.github.pawelkowalski92.crawler;
 
 import com.github.pawelkowalski92.crawler.configuration.FailFastClientVerifier;
+import com.github.pawelkowalski92.crawler.configuration.TestVerificationConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +16,7 @@ import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Import(FailFastClientVerifier.class)
+@Import(TestVerificationConfiguration.FailFastVerifierConfiguration.class)
 public class FailFastClientTest extends BaseIntegrationTest {
 
     @Autowired
