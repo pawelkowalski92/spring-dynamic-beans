@@ -1,0 +1,14 @@
+###
+GET http://localhost:8080/crawler/preview?page=https://httpbin.org/status/201
+
+###
+GET http://localhost:8080/crawler/preview?page=https://httpbin.org/delay/15
+
+###
+GET http://localhost:8080/crawler/preview?page=https://httpbin.org/status/401
+
+###
+GET http://localhost:8080/crawler/stream?page=https://httpbin.org/delay/3&frequency=PT1S
+
+###
+GET http://localhost:8080/crawler/live-feed

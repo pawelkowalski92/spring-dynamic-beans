@@ -1,0 +1,39 @@
+web-crawlers:
+  definitions:
+    - tag: fail-fast
+      connection-timeout: PT0.1S
+      read-timeout: PT0.5S
+      retry:
+        max-attempts: 3
+        back-off: PT1S
+    - tag: try-hard
+      connection-timeout: PT10S
+      read-timeout: PT1M
+      retry:
+        max-attempts: 1
+        back-off: PT5S
+    - tag: balanced
+      primary: true
+      connection-timeout: PT1S
+      read-timeout: PT3S
+      retry:
+        max-attempts: 2
+        back-off: PT2S
+
+live-feed:
+  sources:
+    - resource: https://httpbin.org/status/201
+      client-tag: fail-fast
+      frequency: PT10S
+    - resource: https://httpbin.org/delay/1
+      client-tag: balanced
+      frequency: PT10S
+    - resource: https://httpbin.org/delay/5
+      client-tag: try-hard
+      frequency: PT10S
+    - resource: https://httpbin.org/encoding/utf8
+      client-tag: balanced
+      frequency: PT10S
+    - resource: https://httpbin.org/json
+      client-tag: fail-fast
+      frequency: PT10S
