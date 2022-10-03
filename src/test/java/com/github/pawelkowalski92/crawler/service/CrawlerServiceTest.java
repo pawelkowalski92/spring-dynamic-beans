@@ -112,7 +112,7 @@ public class CrawlerServiceTest extends BaseIntegrationTest {
     @Test
     public void shouldStreamRequestedContentWithDefaultClient() {
         // given
-        URI resource = URI.create(baseUri + "/delay/3");
+        URI resource = URI.create(baseUri + "/delay/2");
         Duration frequency = Duration.ofSeconds(5L);
 
         // when
@@ -135,13 +135,13 @@ public class CrawlerServiceTest extends BaseIntegrationTest {
                 .verify();
 
         WebClient usedClient = resolveDefaultClient();
-        verify(usedClient, times(2)).get();
+        verify(usedClient).get();
     }
 
     @Test
     public void shouldStreamRequestedContentWithSelectedClient() {
         // given
-        URI resource = URI.create(baseUri + "/delay/3");
+        URI resource = URI.create(baseUri + "/delay/2");
         Duration frequency = Duration.ofSeconds(5L);
         String clientTag = "balanced";
 
@@ -165,7 +165,7 @@ public class CrawlerServiceTest extends BaseIntegrationTest {
                 .verify();
 
         WebClient usedClient = resolveClient(clientTag);
-        verify(usedClient, times(2)).get();
+        verify(usedClient).get();
     }
 
 }
