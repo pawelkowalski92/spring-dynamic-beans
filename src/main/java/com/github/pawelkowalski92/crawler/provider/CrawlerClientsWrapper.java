@@ -2,26 +2,36 @@ package com.github.pawelkowalski92.crawler.provider;
 
 import com.github.pawelkowalski92.crawler.configuration.CrawlerClientsProperties;
 import com.github.pawelkowalski92.crawler.configuration.CrawlerClientsProperties.ClientDefinition;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-public class CrawlerClientsWrapper implements ClientProvider {
+public class CrawlerClientsWrapper implements ClientProvider, BeanFactoryAware {
     private final CrawlerClientFactory clientFactory;
     private final CrawlerClientsProperties clientsProperties;
 
-    private final Map<String, WebClient> configuredClients = new HashMap<>();
-    private WebClient defaultClient;
+    private ConfigurableListableBeanFactory beanFactory;
 
     public CrawlerClientsWrapper(CrawlerClientFactory clientFactory, CrawlerClientsProperties clientsProperties) {
         this.clientFactory = clientFactory;
         this.clientsProperties = clientsProperties;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        Assert.isTrue(beanFactory instanceof ConfigurableListableBeanFactory, () -> "Bean factory is not configurable!");
+        this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
     }
 
     @PostConstruct
@@ -32,33 +42,21 @@ public class CrawlerClientsWrapper implements ClientProvider {
                         ClientDefinition::tag,
                         clientFactory::createWebClient
                 ));
-        this.configuredClients.putAll(configuredClients);
-        this.defaultClient = findFirstPrimaryFromConfiguration().or(this::findFirstFromConfiguration)
-                .orElse(null);
+        configuredClients.forEach(beanFactory::registerSingleton);
     }
 
     @Override
     public Optional<WebClient> findClient(String tag) {
-        return Optional.ofNullable(configuredClients.get(tag));
+        try {
+            return Optional.of(beanFactory.getBean(tag, WebClient.class));
+        } catch (NoSuchBeanDefinitionException ex) {
+            return Optional.empty();
+        }
     }
 
     @Override
     public WebClient getDefaultClient() {
-        return defaultClient;
-    }
-
-    private Optional<WebClient> findFirstPrimaryFromConfiguration() {
-        return clientsProperties.definitions()
-                .stream()
-                .filter(ClientDefinition::primary)
-                .map(clientFactory::createWebClient)
-                .findFirst();
-    }
-
-    private Optional<WebClient> findFirstFromConfiguration() {
-        return configuredClients.values()
-                .stream()
-                .findFirst();
+        return beanFactory.getBean(WebClient.class);
     }
 
 }
