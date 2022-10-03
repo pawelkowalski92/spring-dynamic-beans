@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -24,6 +25,7 @@ import java.util.function.Predicate;
 @SpringBootTest
 @ActiveProfiles("integration")
 @Testcontainers
+@DirtiesContext
 @Import({
         TestClockConfiguration.class,
         SpyWebClientBeanPostProcessor.class
@@ -35,9 +37,13 @@ public class BaseIntegrationTest {
             DockerImageName.parse("kennethreitz/httpbin")
     ).withExposedPorts(80);
 
+    static String getContainerBaseURI() {
+        return API_CONTAINER.getHost() + ":" + API_CONTAINER.getMappedPort(80);
+    }
+
     @DynamicPropertySource
     static void apiConfigurer(DynamicPropertyRegistry registry) {
-        registry.add("base-uri", () -> API_CONTAINER.getHost() + ":" + API_CONTAINER.getMappedPort(80));
+        registry.add("base-uri", BaseIntegrationTest::getContainerBaseURI);
     }
 
     @Value("${base-uri}")
