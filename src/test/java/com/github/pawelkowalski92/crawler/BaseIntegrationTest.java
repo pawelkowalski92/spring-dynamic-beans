@@ -4,6 +4,7 @@ import com.github.pawelkowalski92.crawler.configuration.TestClockConfiguration;
 import com.github.pawelkowalski92.crawler.configuration.TestVerificationConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mockito;
+import org.mockito.internal.util.MockUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +57,7 @@ public class BaseIntegrationTest {
     public void resetInvocations() {
         WebClient[] clients = beanFactory.getBeanProvider(WebClient.class)
                 .stream()
+                .filter(MockUtil::isMock)
                 .toArray(WebClient[]::new);
         Mockito.clearInvocations(clients);
     }

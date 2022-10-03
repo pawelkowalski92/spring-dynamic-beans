@@ -56,7 +56,17 @@ public class CrawlerClientsWrapper implements ClientProvider, BeanFactoryAware {
 
     @Override
     public WebClient getDefaultClient() {
-        return beanFactory.getBean(WebClient.class);
+        return findPrimaryDefinition()
+                .map(ClientDefinition::tag)
+                .flatMap(this::findClient)
+                .orElseGet(() -> beanFactory.getBean(WebClient.class));
+    }
+
+    private Optional<ClientDefinition> findPrimaryDefinition() {
+        return clientsProperties.definitions()
+                .stream()
+                .filter(ClientDefinition::primary)
+                .findFirst();
     }
 
 }
